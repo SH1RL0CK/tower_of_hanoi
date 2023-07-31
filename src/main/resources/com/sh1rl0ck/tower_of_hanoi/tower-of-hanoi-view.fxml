@@ -25,8 +25,7 @@
             <TextField fx:id="numberOfDisksInput" prefHeight="25.0" prefWidth="80.0" text="4" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
-      <Button layoutX="240.0" layoutY="93.0" mnemonicParsing="false" onMouseClicked="#start" text="Start" />
-      <Button layoutX="299.0" layoutY="93.0" mnemonicParsing="false" onAction="#reset" text="Reset" />
+      <Button fx:id="controlButton" layoutX="240.0" layoutY="93.0" mnemonicParsing="false" text="Start" />
       <AnchorPane fx:id="animationPane" layoutX="25.0" layoutY="143.0" prefHeight="350.0" prefWidth="800.0" />
    </children>
 </AnchorPane>

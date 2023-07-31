@@ -3,7 +3,10 @@ package com.sh1rl0ck.tower_of_hanoi;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -14,11 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TowerOfHanoiController {
+    public Button controlButton;
     private List<Double> rodsCenters;
     private int numberOfRods;
     private double rodWidth;
     private double rodHeight;
     private double diskHeight;
+    private int maxNumberOfDisks;
     private double maxDiskWidth;
     private double minDiskWidth;
     private List<List<Rectangle>> disks;
@@ -86,8 +91,14 @@ public class TowerOfHanoiController {
     @FXML
     protected void start() {
         reset();
-        transitions.getChildren().add(new PauseTransition(Duration.millis(1000)));
+        controlButton.setDisable(true);
+        numberOfDisksInput.setDisable(true);
         hanoi(Integer.parseInt(numberOfDisksInput.getText()), 0, 1, 2);
+        transitions.setOnFinished(actionEvent -> {
+            controlButton.setOnMouseClicked(mouseEvent ->  reset());
+            controlButton.setText("Reset");
+            controlButton.setDisable(false);
+        });
         transitions.play();
     }
 
@@ -99,26 +110,47 @@ public class TowerOfHanoiController {
         }
         rodsCenters.clear();
         diskYs.clear();
-        this.transitions.getChildren().clear();
+        transitions.getChildren().clear();
         drawRods();
-        drawDisks(Integer.parseInt(numberOfDisksInput.getText()));
+        int numberOfDisks;
+        try {
+            numberOfDisks = Integer.parseInt(numberOfDisksInput.getText());
+        } catch (NumberFormatException exception) {
+            numberOfDisks = 0;
+        }
+        drawDisks(numberOfDisks);
+        controlButton.setOnMouseClicked(mouseEvent ->  start());
+        controlButton.setText("Start");
+        numberOfDisksInput.setDisable(false);
     }
 
     public void initialize() {
-        this.rodsCenters = new ArrayList<>();
-        this.diskYs = new ArrayList<>();
-        this.disks = new ArrayList<>();
-        this.transitions = new SequentialTransition();
-        this.numberOfRods = 3;
-        this.rodWidth = 16;
-        this.rodHeight = 250;
-        this.diskHeight = 20;
-        this.maxDiskWidth = 160;
-        this.minDiskWidth = 50;
+        rodsCenters = new ArrayList<>();
+        diskYs = new ArrayList<>();
+        disks = new ArrayList<>();
+        transitions = new SequentialTransition();
+        numberOfRods = 3;
+        rodWidth = 16;
+        rodHeight = 250;
+        diskHeight = 20;
+        maxNumberOfDisks = 10;
+        maxDiskWidth = 160;
+        minDiskWidth = 50;
         for (int i = 0; i < numberOfRods; i++) {
             this.disks.add(new ArrayList<>());
         }
-        this.transitionDuration = 500;
+        transitionDuration = 500;
+        numberOfDisksInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                newValue = newValue.replaceAll("[^\\d]", "");
+            }
+            if(!newValue.equals("") && Integer.parseInt(newValue) > maxNumberOfDisks )  {
+                newValue = oldValue;
+            }
+            numberOfDisksInput.setText(newValue);
+            controlButton.setDisable(newValue.equals(""));
+            reset();
+        });
         reset();
     }
 }
